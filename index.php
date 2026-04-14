@@ -89,7 +89,7 @@ require __DIR__ . '/partials/head.php';
     <h2>Contact</h2>
     <div id="form-status" class="status" role="status" aria-live="polite"></div>
     <div class="grid-3">
-      <form action="/contact.php" method="post" style="grid-column: span 2;">
+      <form action="mailto:hello@edsi.fr" method="post" enctype="text/plain" style="grid-column: span 2;">
         <input type="hidden" name="form_started_at" id="form-started-at" value="">
         <div class="hidden-field" aria-hidden="true">
           <label for="website">Ne pas remplir ce champ</label>

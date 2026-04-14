@@ -17,13 +17,14 @@
         });
       }
 
-      var menuLinks = document.querySelectorAll('a[href^="/#"]');
-      menuLinks.forEach(function (link) {
+      var scrollLinks = document.querySelectorAll('a[href^="/#"], a[href^="#"]');
+      scrollLinks.forEach(function (link) {
         link.addEventListener("click", function (event) {
           var href = link.getAttribute("href") || "";
           var hashIndex = href.indexOf("#");
           if (hashIndex === -1) return;
           var targetId = href.slice(hashIndex + 1);
+          if (!targetId) return;
           var target = document.getElementById(targetId);
           if (!target) return;
 
@@ -31,7 +32,8 @@
           var headerOffset = header ? header.offsetHeight : 0;
           var y = target.getBoundingClientRect().top + window.scrollY - headerOffset - 10;
           window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-          history.replaceState(null, "", "/#" + targetId);
+          var path = window.location.pathname || "/";
+          history.replaceState(null, "", path + "#" + targetId);
 
           if (menu && menu.classList.contains("is-open")) {
             menu.classList.remove("is-open");

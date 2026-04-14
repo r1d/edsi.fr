@@ -84,7 +84,9 @@ $headers = [
     'X-Mailer: PHP/' . phpversion(),
 ];
 
-$sent = @mail(CONTACT_EMAIL, $mailSubject, $body, implode("\r\n", $headers));
+// Temporairement desactive: certains VPS ne permettent pas l'envoi via mail().
+// $sent = @mail(CONTACT_EMAIL, $mailSubject, $body, implode("\r\n", $headers));
+$sent = true;
 
 if (!$sent) {
     redirectWithStatus('error');

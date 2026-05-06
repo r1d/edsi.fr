@@ -117,6 +117,10 @@ class ResultBuilder
         $t1 = $this->emailTable1($rows1);
         $t2 = $this->emailTable2($rows2);
 
+        $refLabel = isset($this->sites[$this->refSite]['label'])
+            ? $this->esc($this->sites[$this->refSite]['label'])
+            : $this->esc($this->refSite);
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="fr">
@@ -133,7 +137,16 @@ class ResultBuilder
   .hdr .sub{font-size:12px;opacity:.6;margin-top:4px}
   .sec{padding:24px 28px}
   .sec h2{font-size:15px;font-weight:700;color:#374151;border-bottom:2px solid #e5e7eb;padding-bottom:8px;margin-bottom:16px}
-  table{width:100%;border-collapse:collapse;font-size:12px}
+  .scroll-tip{font-size:11px;line-height:1.4;color:rgba(255,255,255,.75);margin:12px 0 0;max-width:36em}
+  .leg-sec{padding:18px 28px 4px;background:#fff;border-bottom:1px solid #e5e7eb}
+  .leg-title{font-size:12px;font-weight:700;color:#374151;margin:0 0 10px}
+  .leg-line{font-size:12px;color:#4b5563;margin:8px 0 0;line-height:1.4}
+  .leg-line:first-of-type{margin-top:0}
+  .leg-sq{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:8px}
+  .leg-g{background:#dcfce7;border:1px solid #86efac}
+  .leg-r{background:#fee2e2;border:1px solid #fca5a5}
+  .tbl-scroll{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;margin:0 0 4px}
+  table.cmp-table{border-collapse:collapse;font-size:12px;width:auto;min-width:100%;max-width:none}
   th{padding:9px 10px;color:#fff;font-weight:600;text-align:center}
   th.left{text-align:left;background:#374151}
   td{padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#374151}
@@ -148,6 +161,16 @@ class ResultBuilder
   .sum li{font-size:12px;color:#4b5563;margin-bottom:3px;list-style:none;padding-left:12px;position:relative}
   .sum li::before{content:"•";position:absolute;left:0}
   .ftr{background:#f1f5f9;text-align:center;padding:14px;font-size:11px;color:#64748b}
+  @media only screen and (max-width:600px){
+    body{padding:12px}
+    .hdr{padding:18px 16px}
+    .hdr h1{font-size:17px}
+    .sec{padding:16px 14px}
+    .leg-sec{padding:14px 14px 4px}
+    table.cmp-table{font-size:10px}
+    .cmp-table th{padding:6px 5px}
+    .cmp-table td{padding:5px 5px}
+  }
 </style>
 </head>
 <body>
@@ -155,6 +178,12 @@ class ResultBuilder
   <div class="hdr">
     <h1>🏁 Comparatif Pneus Guadeloupe</h1>
     <div class="sub">Généré le {$date} (heure Guadeloupe)</div>
+    <p class="scroll-tip">↔ Sur téléphone ou écran étroit : faites défiler les tableaux horizontalement pour voir tous les sites (police réduite automatiquement).</p>
+  </div>
+  <div class="leg-sec">
+    <p class="leg-title">Légende — cellule de prix surlignée quand c&apos;est le minimum sur la ligne :</p>
+    <p class="leg-line"><span class="leg-sq leg-g" aria-hidden="true"></span><strong>{$refLabel}</strong> moins cher</p>
+    <p class="leg-line"><span class="leg-sq leg-r" aria-hidden="true"></span>Autre site moins cher</p>
   </div>
   <div class="sec">
     <h2>📋 Tableau 1 — Meilleur prix toutes marques</h2>
@@ -374,7 +403,7 @@ HTML;
         if (empty($rows)) return '<p class="na">Aucune donnée.</p>';
         $keys = array_keys($this->sites);
 
-        $html  = '<table><thead><tr><th class="left">Dimension</th>';
+        $html  = '<table class="cmp-table"><thead><tr><th class="left">Dimension</th>';
         foreach ($keys as $k) {
             $col   = $this->sites[$k]['color_header'];
             $label = $this->esc($this->sites[$k]['label']);
@@ -397,8 +426,8 @@ HTML;
             $html .= '</tr>';
         }
         $html .= '</tbody></table>';
-        $html .= $this->emailSummary1($rows, $keys);
-        return $html;
+        $sum = $this->emailSummary1($rows, $keys);
+        return '<div class="tbl-scroll">' . $html . '</div>' . $sum;
     }
 
     private function emailTable2(array $rows): string
@@ -406,7 +435,7 @@ HTML;
         if (empty($rows)) return '<p class="na">Aucune donnée.</p>';
         $keys = array_keys($this->sites);
 
-        $html  = '<table><thead><tr>';
+        $html  = '<table class="cmp-table"><thead><tr>';
         $html .= '<th class="left">Marque</th><th class="left">Dimension</th>';
         foreach ($keys as $k) {
             $col   = $this->sites[$k]['color_header'];
@@ -430,8 +459,8 @@ HTML;
             $html .= '</tr>';
         }
         $html .= '</tbody></table>';
-        $html .= $this->emailSummary2($rows, $keys);
-        return $html;
+        $sum = $this->emailSummary2($rows, $keys);
+        return '<div class="tbl-scroll">' . $html . '</div>' . $sum;
     }
 
     // ═══════════════════════════════════════════════════════════════════════

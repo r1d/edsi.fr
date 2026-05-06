@@ -1,0 +1,6 @@
+<?php
+/**
+ * Copiez ce fichier vers config.local.php et renseignez votre clé API Brevo.
+ * config.local.php est ignoré par Git (évite le blocage push GitHub).
+ */
+define('BREVO_API_KEY', 'VOTRE_CLE_API_BREVO');

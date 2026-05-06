@@ -1,0 +1,21 @@
+# Projet ATM Eau - Site Web pour un plombier
+
+## Stack technique
+- HTML
+- CSS
+- Javascript
+
+## Conventions
+- Utiliser les Form Requests pour la validation
+- Toujours écrire les migrations avec des rollbacks propres
+- Nommer les routes en snake_case (ex: reservations.index)
+- Préférer Eloquent aux requêtes SQL brutes
+- Retourner des Resource Collections pour les API JSON
+
+## Structure
+- Site Web en 1 seule page
+
+## Ce qu'on évite
+- Pas de jQuery
+- Pas de packages npm superflus
+- Pas d'architecture over-engineered pour une petite app

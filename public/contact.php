@@ -108,30 +108,54 @@ if (!function_exists('curl_init')) {
     redirectWithStatus('error');
 }
 
-require_once $root . '/lib/BrevoTransactionalMail.php';
+require_once $root . '/lib/BrevoContactMailer.php';
 
-$body = "Nouveau contact depuis {$siteLabel}\n\n";
-$body .= "Nom: {$name}\n";
-$body .= "Email: {$email}\n";
-$body .= "Sujet: {$subject}\n\n";
-$body .= "Message:\n{$message}\n";
+$esc = static function (string $s): string {
+    return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+};
 
-try {
-    $mailer = new BrevoTransactionalMail($brevoKey, $apiBase);
-    $result = $mailer->send([
-        'from_email' => $fromEmail,
-        'from_name' => $fromName,
-        'to' => [['email' => $toEmail]],
-        'reply_to_email' => $email,
-        'reply_to_name' => $name,
-        'subject' => $notificationSubject,
-        'text_body' => $body,
-    ]);
-} catch (Throwable) {
-    redirectWithStatus('error');
-}
+date_default_timezone_set('Europe/Paris');
+$dateFormatted = (new DateTimeImmutable('now'))->format('d/m/Y \à H:i');
 
-if (!$result['ok']) {
+$textBody = "Nouveau contact depuis {$siteLabel}\n\n";
+$textBody .= "Nom: {$name}\n";
+$textBody .= "Email: {$email}\n";
+$textBody .= "Sujet: {$subject}\n\n";
+$textBody .= "Message:\n{$message}\n";
+
+$htmlBody = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body>'
+    . '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px">'
+    . '<div style="background:#0f172a;color:#fff;padding:20px 24px;border-radius:10px 10px 0 0">'
+    . '<h2 style="margin:0;font-size:18px">Nouveau message — ' . $esc($siteLabel) . '</h2>'
+    . '<p style="margin:4px 0 0;font-size:12px;opacity:.6">' . $esc($dateFormatted) . '</p>'
+    . '</div>'
+    . '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;padding:20px 24px;border-radius:0 0 10px 10px">'
+    . '<table style="width:100%;font-size:14px;border-collapse:collapse">'
+    . '<tr><td style="padding:8px 0;color:#6b7280;width:100px;vertical-align:top">Nom</td><td style="color:#111827">' . $esc($name) . '</td></tr>'
+    . '<tr><td style="padding:8px 0;color:#6b7280;vertical-align:top">Email</td><td style="color:#111827"><a href="mailto:' . $esc($email) . '">' . $esc($email) . '</a></td></tr>'
+    . '<tr><td style="padding:8px 0;color:#6b7280;vertical-align:top">Sujet</td><td style="color:#111827">' . $esc($subject) . '</td></tr>'
+    . '</table>'
+    . '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0">'
+    . '<p style="margin:0 0 8px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Message</p>'
+    . '<p style="margin:0;font-size:14px;color:#374151;white-space:pre-wrap">' . $esc($message) . '</p>'
+    . '</div></div></div></body></html>';
+
+$mailer = new BrevoContactMailer($brevoKey, $apiBase);
+$ok = $mailer->send(
+    $notificationSubject,
+    $htmlBody,
+    [$toEmail],
+    $fromEmail,
+    $fromName,
+    $email,
+    $name,
+    $textBody,
+);
+
+if (!$ok) {
+    if ($mailer->lastError !== '') {
+        error_log('[edsi:contact] Brevo: ' . $mailer->lastError);
+    }
     redirectWithStatus('error');
 }
 

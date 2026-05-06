@@ -2,3 +2,4 @@
 _old/
 /config.php
 public/tires/config.php
+public/tires/tire_tracker.db*

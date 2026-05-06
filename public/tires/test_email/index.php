@@ -12,13 +12,15 @@ $authError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     if ($_POST['password'] === APP_PASSWORD) {
         $_SESSION['authenticated'] = true;
+        header('Location: ../index.php');
+        exit;
     } else {
         $authError = 'Mot de passe incorrect.';
     }
 }
 if (!empty($_SESSION['authenticated']) && isset($_GET['logout'])) {
     session_destroy();
-    header('Location: index.php');
+    header('Location: ../index.php');
     exit;
 }
 $isAuth = !empty($_SESSION['authenticated']);

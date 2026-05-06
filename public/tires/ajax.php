@@ -95,38 +95,38 @@ try {
         // ════════════════════════════════════════════════════════════════════
 
         case 'run':
+            // Libérer le verrou de session tout de suite : sinon chaque poll reste bloqué
+            // sur session_start() jusqu'à la fin du scrape (même après fastcgi_finish_request).
+            session_write_close();
+
             $jobId   = 'job_' . bin2hex(random_bytes(8));
             $jobFile = sys_get_temp_dir() . '/tt_' . $jobId . '.json';
 
-            // Écrire le statut initial avant de lancer le process
             file_put_contents($jobFile, json_encode(['status' => 'running']));
 
-            $phpBin  = escapeshellarg(PHP_BINARY);
-            $script  = escapeshellarg(__DIR__ . '/run_job.php');
-            $arg     = escapeshellarg($jobId);
-            $logFile = sys_get_temp_dir() . '/tt_' . $jobId . '_exec.log';
-            $cmd     = "{$phpBin} {$script} {$arg} > " . escapeshellarg($logFile) . " 2>&1 &";
+            $payload = json_encode(['ok' => true, 'jobId' => $jobId]);
 
-            exec($cmd);
+            // Envoyer la réponse tout de suite (PHP-FPM : exec() + & ne lance souvent pas le worker)
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+            header('Content-Length: ' . (string) strlen($payload));
+            echo $payload;
 
-            // Laisser 1s au process pour écrire son fichier job
-            sleep(1);
-            $launched = file_exists($jobFile)
-                ? json_decode(file_get_contents($jobFile), true)
-                : null;
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            } else {
+                if (function_exists('litespeed_finish_request')) {
+                    litespeed_finish_request();
+                }
+                flush();
+            }
 
-            echo json_encode([
-                'ok'     => true,
-                'jobId'  => $jobId,
-                'debug'  => [
-                    'php'      => PHP_BINARY,
-                    'tmpDir'   => sys_get_temp_dir(),
-                    'jobFile'  => $jobFile,
-                    'fileOk'   => file_exists($jobFile),
-                    'status'   => $launched['status'] ?? 'no-file',
-                    'execLog'  => file_exists($logFile) ? file_get_contents($logFile) : '(empty)',
-                ],
-            ]);
+            ignore_user_abort(true);
+            set_time_limit(0);
+
+            require_once __DIR__ . '/run_job.php';
+            tireTrackerExecuteJob($jobId);
             break;
 
         case 'poll':
@@ -148,6 +148,78 @@ try {
             if (in_array($data['status'] ?? '', ['done', 'error'])) {
                 @unlink($jobFile);
             }
+            break;
+
+        // ════════════════════════════════════════════════════════════════════
+        // Envoi manuel du rapport e-mail (même contenu que le cron)
+        // ════════════════════════════════════════════════════════════════════
+
+        case 'send_email_report':
+            session_write_close();
+            date_default_timezone_set(TIMEZONE);
+
+            foreach (['BaseScraper', 'PneudealScraper', 'Pneus971Scraper',
+                      'SearchEngine', 'ResultBuilder', 'Mailer'] as $cls) {
+                require_once SRC_PATH . "/{$cls}.php";
+            }
+
+            $raw1 = $_POST['rows1'] ?? '';
+            $raw2 = $_POST['rows2'] ?? '';
+            if (!is_string($raw1)) {
+                $raw1 = '';
+            }
+            if (!is_string($raw2)) {
+                $raw2 = '';
+            }
+
+            $rows1 = json_decode($raw1, true);
+            $rows2 = json_decode($raw2, true);
+            $rows1 = is_array($rows1) ? array_values(array_filter(
+                $rows1,
+                static fn($r) => is_array($r) && isset($r['results']) && is_array($r['results'])
+            )) : [];
+            $rows2 = is_array($rows2) ? array_values(array_filter(
+                $rows2,
+                static fn($r) => is_array($r) && isset($r['results']) && is_array($r['results'])
+            )) : [];
+
+            if ($rows1 === [] && $rows2 === []) {
+                echo json_encode([
+                    'ok'    => false,
+                    'error' => 'Aucune donnée à envoyer. Lancez d’abord une recherche depuis l’onglet « Lancer la recherche ».',
+                ]);
+                break;
+            }
+
+            $sites   = require __DIR__ . '/sites.php';
+            $engine  = new SearchEngine($sites);
+            $builder = new ResultBuilder($sites);
+            $mailer  = new Mailer(BREVO_API_KEY);
+
+            $errors = $engine->collectErrors($rows1, $rows2);
+
+            if ($errors !== []) {
+                $alertMsg = "Les erreurs suivantes figurent dans les données affichées :\n\n"
+                    . implode("\n", $errors)
+                    . "\n\nLes résultats affectés apparaissent avec « — » dans l'email principal.";
+                $mailer->sendAlert($alertMsg);
+            }
+
+            $body = $builder->buildEmailHtml($rows1, $rows2);
+            $sent = $mailer->sendReport($body);
+
+            if (!$sent) {
+                echo json_encode([
+                    'ok'    => false,
+                    'error' => $mailer->lastError !== '' ? $mailer->lastError : 'Échec de l’envoi (Brevo).',
+                ]);
+                break;
+            }
+
+            echo json_encode([
+                'ok'         => true,
+                'recipients' => implode(', ', MAIL_TO),
+            ]);
             break;
 
         default:

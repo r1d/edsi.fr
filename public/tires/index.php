@@ -306,22 +306,29 @@ $isAuth = !empty($_SESSION['authenticated']);
     <!-- Résultats (remplis dynamiquement) -->
     <div id="results-content" class="hidden space-y-8">
 
-      <div class="flex items-center justify-between">
+      <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 class="text-lg font-bold text-gray-800">Résultats de la recherche</h2>
           <p class="text-gray-400 text-xs mt-0.5" id="results-date"></p>
         </div>
-        <div class="flex items-center gap-3 text-xs">
-          <span class="flex items-center gap-1">
-            <span class="inline-block w-4 h-4 bg-green-100 border border-green-300 rounded"></span>
-            <span class="text-gray-600">971pneus.gp moins cher</span>
-          </span>
-          <span class="flex items-center gap-1">
-            <span class="inline-block w-4 h-4 bg-red-100 border border-red-300 rounded"></span>
-            <span class="text-gray-600">Autre site moins cher</span>
-          </span>
+        <div class="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <button type="button" id="btn-email-results" onclick="sendEmailReport()"
+                  class="btn-primary text-sm px-4 py-2 whitespace-nowrap shadow-sm">
+            📧 Envoyer par e-mail
+          </button>
+          <div class="flex flex-wrap items-center gap-3 text-xs">
+            <span class="flex items-center gap-1">
+              <span class="inline-block w-4 h-4 bg-green-100 border border-green-300 rounded"></span>
+              <span class="text-gray-600">971pneus.gp moins cher</span>
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="inline-block w-4 h-4 bg-red-100 border border-red-300 rounded"></span>
+              <span class="text-gray-600">Autre site moins cher</span>
+            </span>
+          </div>
         </div>
       </div>
+      <p id="email-send-feedback" class="hidden text-sm rounded-lg px-3 py-2" role="status"></p>
 
       <div class="card">
         <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
@@ -493,6 +500,9 @@ async function deleteDm(id, label) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 let runTimer = null;
+/** Données brutes du dernier scraping (pour e-mail sans re-scraper) */
+let lastReportRows1 = [];
+let lastReportRows2 = [];
 
 async function refreshRunStats() {
   const [d1, d2] = await Promise.all([ajax('list_dims'), ajax('list_dm')]);
@@ -517,6 +527,8 @@ async function runSearch() {
   progress.classList.remove('hidden');
   result.classList.add('hidden');
   errors.classList.add('hidden');
+  lastReportRows1 = [];
+  lastReportRows2 = [];
 
   let elapsed = 0;
   runTimer = setInterval(() => {
@@ -545,6 +557,9 @@ async function runSearch() {
 
     clearInterval(runTimer);
     progress.classList.add('hidden');
+
+    lastReportRows1 = Array.isArray(res.rows1) ? res.rows1 : [];
+    lastReportRows2 = Array.isArray(res.rows2) ? res.rows2 : [];
 
     // ── 3. Afficher les résultats ────────────────────────────────────────────
     result.innerHTML = `<div class="bg-green-50 border border-green-200 text-green-700 rounded-xl p-4 text-sm flex items-center gap-2">
@@ -604,6 +619,38 @@ function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+async function sendEmailReport() {
+  const btn = document.getElementById('btn-email-results');
+  const fb  = document.getElementById('email-send-feedback');
+  if (!btn || !fb) return;
+
+  btn.disabled = true;
+  fb.classList.add('hidden');
+  fb.textContent = '';
+  fb.classList.remove('bg-green-50', 'border', 'border-green-200', 'text-green-800',
+    'bg-red-50', 'border-red-200', 'text-red-800');
+
+  try {
+    fb.textContent = 'Envoi en cours…';
+    fb.classList.add('bg-slate-100', 'border', 'border-slate-200', 'text-slate-700');
+    fb.classList.remove('hidden');
+
+    const res = await ajax('send_email_report', {
+      rows1: JSON.stringify(lastReportRows1),
+      rows2: JSON.stringify(lastReportRows2),
+    });
+    if (!res.ok) throw new Error(res.error || 'Échec de l’envoi');
+
+    fb.textContent = 'E-mail envoyé à : ' + (res.recipients || '');
+    fb.className = 'text-sm rounded-lg px-3 py-2 bg-green-50 border border-green-200 text-green-800';
+  } catch (err) {
+    fb.textContent = String(err.message || err);
+    fb.className = 'text-sm rounded-lg px-3 py-2 bg-red-50 border border-red-200 text-red-800';
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────

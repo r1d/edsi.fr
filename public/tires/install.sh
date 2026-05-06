@@ -58,7 +58,7 @@ echo ""
 echo -e "${BOLD}[2/5] Vérification de config.php${NC}"
 
 CONFIG="${SCRIPT_DIR}/config.php"
-[[ -f "$CONFIG" ]] || fail "config.php introuvable dans ${SCRIPT_DIR}"
+[[ -f "$CONFIG" ]] || fail "config.php introuvable — copiez config.example.php vers config.php dans ${SCRIPT_DIR}"
 
 # Vérifier que le mot de passe a été changé
 if grep -q "changeme_ici" "$CONFIG"; then
@@ -67,11 +67,11 @@ else
   ok "APP_PASSWORD personnalisé"
 fi
 
-# Vérifier la clé Brevo (config.local.php ou variable d'environnement)
-if php -r "require_once '${CONFIG}'; exit(trim(BREVO_API_KEY) !== '' ? 0 : 1);" 2>/dev/null; then
+# Vérifier la clé Brevo
+if php -r "require_once '${CONFIG}'; exit(trim(BREVO_API_KEY) !== '' && BREVO_API_KEY !== 'xkeysib-REMPLACER' ? 0 : 1);" 2>/dev/null; then
   ok "BREVO_API_KEY configurée"
 else
-  warn "BREVO_API_KEY absente — copiez config.local.php.example vers config.local.php ou définissez BREVO_API_KEY"
+  warn "BREVO_API_KEY absente ou encore xkeysib-REMPLACER — éditez config.php (voir config.example.php)"
 fi
 
 # ── 3. Création de la base SQLite ────────────────────────────────────────────
@@ -148,8 +148,7 @@ echo -e "${GREEN}${BOLD}✅ Installation terminée !${NC}"
 echo ""
 echo -e "${BOLD}Prochaines étapes :${NC}"
 echo ""
-echo "  1. Éditez ${CYAN}config.php${NC} (APP_PASSWORD, MAIL_*, etc.)"
-echo "     et ${CYAN}config.local.php${NC} (copie de config.local.php.example) pour ${BOLD}BREVO_API_KEY${NC}"
+echo "  1. ${CYAN}cp config.example.php config.php${NC} puis éditez ${CYAN}config.php${NC} (mot de passe, clé Brevo, e-mails)"
 echo ""
 echo "  2. Accédez à l'interface :"
 echo -e "       ${CYAN}https://edsi.fr/tires/${NC}"

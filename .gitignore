@@ -1,4 +1,4 @@
 .DS_Store
 _old/
 /config.php
-public/tires/config.local.php
+public/tires/config.php

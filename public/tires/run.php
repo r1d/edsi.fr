@@ -28,7 +28,7 @@ $base = __DIR__;
 require_once $base . '/config.php';
 date_default_timezone_set(TIMEZONE);
 
-foreach (['Database', 'BaseScraper', 'PneudealScraper', 'Pneus971Scraper',
+foreach (['Database', 'BaseScraper', 'GenericXPathScraper',
           'SearchEngine', 'ResultBuilder', 'Mailer'] as $cls) {
     require_once SRC_PATH . "/{$cls}.php";
 }

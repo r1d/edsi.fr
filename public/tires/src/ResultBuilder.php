@@ -147,13 +147,19 @@ class ResultBuilder
   .leg-r{background:#fee2e2;border:1px solid #fca5a5}
   .tbl-scroll{display:block;width:100%;max-width:100%;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;margin:0 0 4px}
   table.cmp-table{border-collapse:collapse;font-size:12px;width:auto;min-width:100%;max-width:none}
-  th{padding:9px 10px;color:#fff;font-weight:600;text-align:center}
-  th.left{text-align:left;background:#374151}
+  th{padding:9px 10px;color:#fff;font-weight:600;text-align:center;line-height:1.25}
+  th.left{text-align:left;background:#374151;color:#fff}
+  th .th-sub{display:block;font-size:10px;font-weight:500;opacity:.85;margin-top:2px}
   td{padding:8px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#374151}
-  td.left{text-align:left;font-family:monospace;font-weight:600}
+  td.left{text-align:left;font-family:monospace;font-weight:600;line-height:1.35}
+  td.merged{line-height:1.35}
+  td.merged .sub{font-size:11px;color:#6b7280;display:inline-block;margin-bottom:2px}
+  td.merged strong{font-size:13px;color:#111827}
   tr:nth-child(even) td{background:#f8fafc}
-  .g{background:#dcfce7;color:#166534;font-weight:700}
-  .r{background:#fee2e2;color:#991b1b;font-weight:700}
+  .g{background:#dcfce7}
+  .g strong{color:#166534}
+  .r{background:#fee2e2}
+  .r strong{color:#991b1b}
   .na{color:#9ca3af;font-style:italic}
   .err{color:#ef4444;font-size:11px}
   .sum{background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:14px 18px;margin-top:16px}
@@ -170,6 +176,9 @@ class ResultBuilder
     table.cmp-table{font-size:10px}
     .cmp-table th{padding:6px 5px}
     .cmp-table td{padding:5px 5px}
+    .cmp-table th .th-sub{font-size:9px}
+    td.merged .sub{font-size:10px}
+    td.merged strong{font-size:11px}
   }
 </style>
 </head>
@@ -178,7 +187,6 @@ class ResultBuilder
   <div class="hdr">
     <h1>🏁 Comparatif Pneus Guadeloupe</h1>
     <div class="sub">Généré le {$date} (heure Guadeloupe)</div>
-    <p class="scroll-tip">↔ Sur téléphone ou écran étroit : faites défiler les tableaux horizontalement pour voir tous les sites (police réduite automatiquement).</p>
   </div>
   <div class="leg-sec">
     <p class="leg-title">Légende — cellule de prix surlignée quand c&apos;est le minimum sur la ligne :</p>
@@ -193,7 +201,7 @@ class ResultBuilder
     <h2>🏷️ Tableau 2 — Prix par marque spécifique</h2>
     {$t2}
   </div>
-  <div class="ftr">Tire Tracker · edsi.fr/tires · Envoi automatique chaque jour à 5h00</div>
+  <div class="ftr">Comparatif Pneus · edsi.fr/tires</div>
 </div>
 </body>
 </html>
@@ -267,6 +275,33 @@ HTML;
             "<td>{$brand}</td>",
             "<td class=\"{$cls}\">{$price}</td>",
         ];
+    }
+
+    /**
+     * Cellule fusionnée pour email : libellé (marque ou modèle) au-dessus,
+     * prix au-dessous, dans une seule cellule (1 colonne par site).
+     * Utilisée par les tableaux email afin de réduire le nombre de colonnes
+     * (meilleure lisibilité sur mobile).
+     */
+    private function emailMergedCell(?array $res, string $siteKey, ?float $minPrice): string
+    {
+        if ($res === null || !empty($res['error'])) {
+            return '<td class="merged"><span class="err">⚠ erreur</span></td>';
+        }
+        if ($res['price'] === null) {
+            return '<td class="merged"><span class="na">—</span></td>';
+        }
+
+        $isMin = $minPrice !== null && abs($res['price'] - $minPrice) < 0.01;
+        $price = number_format($res['price'], 2, ',', ' ') . ' €';
+        $label = $this->esc($res['brand'] ?: '—');
+
+        $cls = '';
+        if ($isMin) {
+            $cls = $siteKey === $this->refSite ? 'g' : 'r';
+        }
+
+        return "<td class=\"merged {$cls}\"><span class=\"sub\">{$label}</span><br><strong>{$price}</strong></td>";
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -403,16 +438,11 @@ HTML;
         if (empty($rows)) return '<p class="na">Aucune donnée.</p>';
         $keys = array_keys($this->sites);
 
-        $html  = '<table class="cmp-table"><thead><tr><th class="left">Dimension</th>';
+        $html = '<table class="cmp-table"><thead><tr><th class="left">Dimension</th>';
         foreach ($keys as $k) {
             $col   = $this->sites[$k]['color_header'];
             $label = $this->esc($this->sites[$k]['label']);
-            $html .= "<th style=\"background:{$col}\" colspan=\"2\">{$label}</th>";
-        }
-        $html .= '</tr><tr><th class="left"></th>';
-        foreach ($keys as $k) {
-            $col = $this->sites[$k]['color_header'];
-            $html .= "<th style=\"background:{$col}\">Marque</th><th style=\"background:{$col}\">Prix TTC</th>";
+            $html .= "<th style=\"background:{$col};color:#fff\">{$label}<br><span class=\"th-sub\">Marque / Prix TTC</span></th>";
         }
         $html .= '</tr></thead><tbody>';
 
@@ -420,8 +450,7 @@ HTML;
             $min   = $this->minPrice($row['results']);
             $html .= "<tr><td class=\"left\">{$row['dim']}</td>";
             foreach ($keys as $k) {
-                [$b, $p] = $this->emailCells($row['results'][$k] ?? null, $k, $min);
-                $html .= $b . $p;
+                $html .= $this->emailMergedCell($row['results'][$k] ?? null, $k, $min);
             }
             $html .= '</tr>';
         }
@@ -435,26 +464,20 @@ HTML;
         if (empty($rows)) return '<p class="na">Aucune donnée.</p>';
         $keys = array_keys($this->sites);
 
-        $html  = '<table class="cmp-table"><thead><tr>';
-        $html .= '<th class="left">Marque</th><th class="left">Dimension</th>';
+        $html = '<table class="cmp-table"><thead><tr>';
+        $html .= '<th class="left">Marque<br>Dimension</th>';
         foreach ($keys as $k) {
             $col   = $this->sites[$k]['color_header'];
             $label = $this->esc($this->sites[$k]['label']);
-            $html .= "<th style=\"background:{$col}\" colspan=\"2\">{$label}</th>";
-        }
-        $html .= '</tr><tr><th class="left"></th><th class="left"></th>';
-        foreach ($keys as $k) {
-            $col = $this->sites[$k]['color_header'];
-            $html .= "<th style=\"background:{$col}\">Modèle</th><th style=\"background:{$col}\">Prix TTC</th>";
+            $html .= "<th style=\"background:{$col};color:#fff\">{$label}<br><span class=\"th-sub\">Modèle / Prix TTC</span></th>";
         }
         $html .= '</tr></thead><tbody>';
 
         foreach ($rows as $row) {
             $min   = $this->minPrice($row['results']);
-            $html .= "<tr><td class=\"left\">{$row['marque']}</td><td class=\"left\">{$row['dim']}</td>";
+            $html .= "<tr><td class=\"left\"><strong>{$row['marque']}</strong><br>{$row['dim']}</td>";
             foreach ($keys as $k) {
-                [$b, $p] = $this->emailCells($row['results'][$k] ?? null, $k, $min);
-                $html .= $b . $p;
+                $html .= $this->emailMergedCell($row['results'][$k] ?? null, $k, $min);
             }
             $html .= '</tr>';
         }

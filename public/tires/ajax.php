@@ -158,7 +158,7 @@ try {
             session_write_close();
             date_default_timezone_set(TIMEZONE);
 
-            foreach (['BaseScraper', 'PneudealScraper', 'Pneus971Scraper',
+            foreach (['BaseScraper', 'GenericXPathScraper',
                       'SearchEngine', 'ResultBuilder', 'Mailer'] as $cls) {
                 require_once SRC_PATH . "/{$cls}.php";
             }

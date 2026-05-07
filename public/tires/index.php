@@ -46,7 +46,7 @@ $isAuth = !empty($_SESSION['authenticated']);
       }
     }
   </script>
-  <style>
+  <style type="text/tailwindcss">
     [x-cloak] { display: none !important; }
     .tab-active   { @apply border-b-2 border-blue-600 text-blue-600 font-semibold; }
     .tab-inactive { @apply text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent; }

@@ -24,7 +24,7 @@ function tireTrackerExecuteJob(string $jobId): void
         require_once __DIR__ . '/config.php';
         date_default_timezone_set(TIMEZONE);
 
-        foreach (['Database', 'BaseScraper', 'PneudealScraper', 'Pneus971Scraper',
+        foreach (['Database', 'BaseScraper', 'GenericXPathScraper',
                   'SearchEngine', 'ResultBuilder'] as $cls) {
             require_once SRC_PATH . "/{$cls}.php";
         }

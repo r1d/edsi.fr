@@ -23,8 +23,7 @@
 └── src/
     ├── Database.php
     ├── BaseScraper.php
-    ├── PneudealScraper.php
-    ├── Pneus971Scraper.php
+    ├── GenericXPathScraper.php   ← scraper unique piloté par sites.php (clé `selectors`)
     ├── SearchEngine.php
     ├── ResultBuilder.php
     └── Mailer.php

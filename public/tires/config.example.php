@@ -18,7 +18,7 @@ define('MAIL_TO', [
     'vous@exemple.com',
     // 'lautre@exemple.com',
 ]);
-define('MAIL_SUBJECT', 'Comparatif pneus Guadeloupe – {date}');
+define('MAIL_SUBJECT', '🛞 Comparatif pneus Guadeloupe – {date}');
 
 // ─── SCRAPING ───────────────────────────────────────────────────────────────
 define('SCRAPE_TIMEOUT',  10);

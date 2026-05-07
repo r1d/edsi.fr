@@ -16,6 +16,7 @@ define('MAIL_FROM',      'hello@edsi.fr');
 define('MAIL_FROM_NAME', 'Tire Tracker');
 define('MAIL_TO', [
     'vous@exemple.com',
+    // 'lautre@exemple.com',
 ]);
 define('MAIL_SUBJECT', 'Comparatif pneus Guadeloupe – {date}');
 

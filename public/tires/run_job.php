@@ -21,7 +21,7 @@ function tireTrackerExecuteJob(string $jobId): void
     }
 
     try {
-        require_once __DIR__ . '/config.php';
+        require_once __DIR__ . '/bootstrap.php';
         date_default_timezone_set(TIMEZONE);
 
         foreach (['Database', 'BaseScraper', 'GenericXPathScraper',

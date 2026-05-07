@@ -25,7 +25,7 @@ ini_set('log_errors',     '1');
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────
 $base = __DIR__;
-require_once $base . '/config.php';
+require_once $base . '/bootstrap.php';
 date_default_timezone_set(TIMEZONE);
 
 foreach (['Database', 'BaseScraper', 'GenericXPathScraper',

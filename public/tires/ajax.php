@@ -7,7 +7,7 @@ declare(strict_types=1);
 
 ob_start(); // capture tout output parasite avant le JSON
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 require_once SRC_PATH . '/Database.php';
 
 session_name(SESSION_NAME);

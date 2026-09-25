@@ -6,7 +6,7 @@ const MIN_SUBMIT_SECONDS = 4;
 
 function redirectWithStatus(string $status): void
 {
-    header('Location: /?contact=' . rawurlencode($status) . '#contact');
+    header('Location: /contact?contact=' . rawurlencode($status));
     exit;
 }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 $pageTitle = 'EDSI - Etudes et Développement de Solutions Informatiques';
 $metaDescription = 'Site vitrine en 2 jours, boutique en ligne en 7 jours et développements web sur mesure. Devis rapide sur simple demande.';
 $canonicalUrl = 'https://edsi.fr/';
+$scrollTo = $scrollTo ?? null;
 
 require __DIR__ . '/partials/head.php';
 ?>
@@ -13,8 +14,8 @@ require __DIR__ . '/partials/head.php';
     <h2>Conception et réalisation de sites internet,<br>de sites marchands et développement sur mesure.</h2>
     <p class="section-text">Société de service informatique performante et dynamique. Devis rapide sur simple demande.</p>
     <div class="cta-row">
-      <a href="#contact" class="btn btn-primary">Prendre rendez-vous</a>
-      <a href="#contact" class="btn btn-secondary">Demander un devis</a>
+      <a href="/contact" class="btn btn-primary">Prendre rendez-vous</a>
+      <a href="/contact" class="btn btn-secondary">Demander un devis</a>
       <a href="https://wa.me/590690515880" target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp" aria-label="WhatsApp">
         <img src="/images/whatsapp.jpg" alt="WhatsApp">
       </a>

@@ -42,9 +42,9 @@ $ogImage = $ogImage ?? 'https://edsi.fr/images/edsi-143x59.png';
         <span class="burger-line"></span>
       </button>
       <nav class="menu" id="site-menu" aria-label="Navigation principale">
-        <a href="/#services">Services</a>
-        <a href="/#projet-type">Produits</a>
-        <a href="/#contact">Contact</a>
+        <a href="/services">Services</a>
+        <a href="/produits">Produits</a>
+        <a href="/contact">Contact</a>
       </nav>
     </div>
   </header>

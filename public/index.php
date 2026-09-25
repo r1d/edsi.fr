@@ -2,16 +2,16 @@
 declare(strict_types=1);
 
 $pageTitle = 'EDSI - Etudes et Développement de Solutions Informatiques';
-$metaDescription = 'Site vitrine en 2 jours, boutique en ligne en 7 jours et développements web sur mesure. Devis rapide sur simple demande.';
+$metaDescription = 'Site vitrine en 2 jours, boutique en ligne en 7 jours et développements de sites web et applications mobiles sur mesure. Devis rapide sur simple demande.';
 $canonicalUrl = 'https://edsi.fr/';
 $scrollTo = $scrollTo ?? null;
 
 require __DIR__ . '/partials/head.php';
 ?>
 <main>
-  <section class="container hero" id="accueil" style="text-align: center;">
+  <section class="container hero" id="accueil">
     <h1>Concrétisons ensemble vos idées d'applications</h1>
-    <h2>Conception et réalisation de sites internet,<br>de sites marchands et développement sur mesure.</h2>
+    <p class="hero-lead">Conception et réalisation de sites internet, de sites marchands et d'applications mobiles.</p>
     <p class="section-text">Société de service informatique performante et dynamique. Devis rapide sur simple demande.</p>
     <div class="cta-row">
       <a href="/contact" class="btn btn-primary">Prendre rendez-vous</a>
@@ -24,7 +24,7 @@ require __DIR__ . '/partials/head.php';
 
   <section class="container card" id="developpement">
     <h2>Concrétisons ensemble vos idées d'applications</h2>
-    <p style="margin-top:1rem;">Fort d’une expérience sans cesse renouvelée nous sommes à même d’analyser de façon formelle vos besoins, de vous conseiller des choix ambitieux mais réalistes et de mettre en place des réalisations puissantes et modernes en terme d'organisation et d'exploitation de vos données.</p>
+    <p class="prose">Fort d’une expérience sans cesse renouvelée nous sommes à même d’analyser de façon formelle vos besoins, de vous conseiller des choix ambitieux mais réalistes et de mettre en place des réalisations puissantes et modernes en terme d'organisation et d'exploitation de vos données.</p>
     <div class="grid-3">
       <article class="feature">
         <img src="/images/simple.png" alt="Simple">
@@ -52,7 +52,7 @@ require __DIR__ . '/partials/head.php';
 
   <section class="container card" id="services">
     <h2>Nos services en 3 étapes</h2>
-    <p>Dans un contexte en constante évolution, une adaptation permanente est indispensable. Conduire le changement au lieu de le subir est déjà en soi un facteur de progrès, le mettre en œuvre de façon structurée est un facteur de réussite. La conduite par projets bien identifiés permet de planifier cette adaptation tout en mobilisant de façon transversale et innovatrice les compétences de l’entreprise.</p>
+    <p class="prose">Dans un contexte en constante évolution, une adaptation permanente est indispensable. Conduire le changement au lieu de le subir est déjà en soi un facteur de progrès, le mettre en œuvre de façon structurée est un facteur de réussite. La conduite par projets bien identifiés permet de planifier cette adaptation tout en mobilisant de façon transversale et innovatrice les compétences de l’entreprise.</p>
 
     <div class="grid-3 blocks-gap">
       <article class="card feature-card">
@@ -80,10 +80,13 @@ require __DIR__ . '/partials/head.php';
   </section>
 
   <section class="container card" id="projet-type">
-    <h2>Projet type</h2>
-    <p><strong>Lancement express d’un site vitrine en 2 jours</strong> pour présenter une activité, capter des demandes et professionnaliser la présence en ligne.</p>
-    <p><strong>Boutique en ligne en 7 jours</strong> via notre produit sous licence.</p>
-    <p>Pour les autres besoins de développement sur mesure, nous contacter. <strong>Devis rapide sur simple demande.</strong></p>
+    <h2>Projets types</h2>
+    <div class="prose">
+      <p><strong>Lancement express d’un site vitrine en 2 jours</strong> pour présenter une activité, capter des demandes et professionnaliser la présence en ligne.</p>
+      <p><strong>Boutique en ligne en 7 jours</strong> via notre produit sous licence.</p>
+      <p><strong>Site ou service web sur mesure</strong> devis sur demande.</p>
+      <p><strong>Applications mobile Android et iPhone</strong> devis sur demande.</p>
+    </div>
   </section>
 
   <section class="container card" id="contact">
@@ -103,10 +106,6 @@ require __DIR__ . '/partials/head.php';
         <p>
           <label for="email">Email</label>
           <input id="email" name="email" type="email" required minlength="6" maxlength="180">
-        </p>
-        <p>
-          <label for="subject">Sujet</label>
-          <input id="subject" name="subject" type="text" required minlength="3" maxlength="180">
         </p>
         <p>
           <label for="message">Message</label>

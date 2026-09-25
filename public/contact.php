@@ -49,10 +49,9 @@ $rateData[$ip] = $now;
 
 $name = trim((string)($_POST['name'] ?? ''));
 $email = trim((string)($_POST['email'] ?? ''));
-$subject = trim((string)($_POST['subject'] ?? ''));
 $message = trim((string)($_POST['message'] ?? ''));
 
-if ($name === '' || $email === '' || $subject === '' || $message === '') {
+if ($name === '' || $email === '' || $message === '') {
     redirectWithStatus('error');
 }
 
@@ -69,10 +68,9 @@ if (preg_match('/[\x00-\x1F\x7F]/', $email) === 1) {
 }
 
 $name = mb_substr($name, 0, 120);
-$subject = mb_substr($subject, 0, 180);
 $message = mb_substr($message, 0, 4000);
 
-if (preg_match('/[\r\n]/', $name) || preg_match('/[\r\n]/', $email) || preg_match('/[\r\n]/', $subject)) {
+if (preg_match('/[\r\n]/', $name) || preg_match('/[\r\n]/', $email)) {
     redirectWithStatus('error');
 }
 
@@ -119,8 +117,7 @@ $dateFormatted = (new DateTimeImmutable('now'))->format('d/m/Y \à H:i');
 
 $textBody = "Nouveau contact depuis {$siteLabel}\n\n";
 $textBody .= "Nom: {$name}\n";
-$textBody .= "Email: {$email}\n";
-$textBody .= "Sujet: {$subject}\n\n";
+$textBody .= "Email: {$email}\n\n";
 $textBody .= "Message:\n{$message}\n";
 
 $htmlBody = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><body>'
@@ -133,7 +130,6 @@ $htmlBody = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"></head><
     . '<table style="width:100%;font-size:14px;border-collapse:collapse">'
     . '<tr><td style="padding:8px 0;color:#6b7280;width:100px;vertical-align:top">Nom</td><td style="color:#111827">' . $esc($name) . '</td></tr>'
     . '<tr><td style="padding:8px 0;color:#6b7280;vertical-align:top">Email</td><td style="color:#111827"><a href="mailto:' . $esc($email) . '">' . $esc($email) . '</a></td></tr>'
-    . '<tr><td style="padding:8px 0;color:#6b7280;vertical-align:top">Sujet</td><td style="color:#111827">' . $esc($subject) . '</td></tr>'
     . '</table>'
     . '<div style="margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0">'
     . '<p style="margin:0 0 8px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">Message</p>'

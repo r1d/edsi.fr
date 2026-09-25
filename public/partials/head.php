@@ -28,13 +28,16 @@ $ogImage = $ogImage ?? 'https://edsi.fr/images/edsi-143x59.png';
   <link rel="icon" type="image/x-icon" href="/images/favicon_package_v0.16/favicon.ico">
   <link rel="apple-touch-icon" href="/images/favicon_package_v0.16/apple-touch-icon.png">
   <link rel="manifest" href="/images/favicon_package_v0.16/site.webmanifest">
+  <link rel="preload" href="/fonts/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/source-sans-3-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/source-sans-3-latin-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/main.css?v=<?= filemtime(__DIR__ . '/../main.css') ?>">
 </head>
 <body>
   <header class="site-header">
     <div class="container nav">
-      <a href="/" class="brand" aria-label="Retour à l'accueil EDSI">
-        <img src="/images/edsi-143x59.png" alt="Logo EDSI">
+      <a href="/" class="brand" aria-label="Retour à l'accueil">
+        <img src="/images/edsi-143x59.png" alt="edsi.fr conception et réalisation web et mobile">
       </a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Ouvrir le menu">
         <span class="burger-line"></span>

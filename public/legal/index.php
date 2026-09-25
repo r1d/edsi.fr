@@ -16,8 +16,8 @@ require __DIR__ . '/../partials/head.php';
   <section class="container card">
     <h2>Éditeur du site</h2>
     <p><strong>EDSI</strong> - Etudes et Développement de Solutions Informatiques</p>
-    <p>✉️ <a href="mailto:hello@edsi.fr">hello@edsi.fr</a></p>
-    <p>📞 <a href="https://wa.me/590690515880" target="_blank" rel="noopener noreferrer">+590690515880</a></p>
+    <p>✉️ hello@edsi.fr</p>
+    <p>📞 +590690515880</p>
     <p>SIREN 402 971 790</p>
   </section>
 
@@ -35,7 +35,7 @@ require __DIR__ . '/../partials/head.php';
   <section class="container card">
     <h2>Données personnelles</h2>
     <p>Les informations transmises via le formulaire de contact sont utilisées uniquement pour répondre aux demandes reçues.</p>
-    <p>Pour exercer vos droits d'accès, de rectification ou de suppression, vous pouvez écrire à <a href="mailto:hello@edsi.fr">hello@edsi.fr</a>.</p>
+    <p>Pour exercer vos droits d'accès, de rectification ou de suppression, vous pouvez écrire à hello@edsi.fr</p>
   </section>
 
   <section class="container card">
